@@ -11,18 +11,18 @@
 #include <string.h>
 
 #include "defines.h"
-/*
+
 typedef struct node {
-	int val;
-	struct node* next;
+	void *data;
+	struct node *next;
 };
 
-void push(struct Node** head_ref, void *new_data, size_t data_size)
+void push(struct node** head_ref, void *new_data, size_t data_size)
 {
     // Allocate memory for node
-    struct Node* new_node = (struct Node*)malloc(sizeof(struct Node));
+    struct node* new_node = (struct node*)malloc(sizeof(struct node));
  
-    new_node->data  = malloc(data_size);
+    new_node->data = malloc(data_size);
     new_node->next = (*head_ref);
  
     // Copy contents of new_data to newly allocated memory.
@@ -35,7 +35,7 @@ void push(struct Node** head_ref, void *new_data, size_t data_size)
     (*head_ref)    = new_node;
 }
 
-void printList(struct Node *node, void (*fptr)(void *))
+void printList(struct node *node, void (*fptr)(void *))
 {
     while (node != NULL)
     {
@@ -44,12 +44,18 @@ void printList(struct Node *node, void (*fptr)(void *))
     }
 }
 
+void printChar(void *c)
+{
+	printf("printing from list\n");
+	printf(" %s", *(char*)c);
+}
+
 void store(char *src, char *des) {
 	struct node* start = NULL;
-	unsigned char_size = sizeof(char);
-	push(&start, &src, char_size);	
+	unsigned char_size = sizeof(char*);
+	push(&start, &src, char_size);
+	printList(start, printChar);
 }
-*/
 
 u_int16_t handle_ethernet(u_char *args,const struct pcap_pkthdr* pkthdr,const u_char* packet)
 {
@@ -60,9 +66,11 @@ u_int16_t handle_ethernet(u_char *args,const struct pcap_pkthdr* pkthdr,const u_
      eptr = (struct ether_header *) packet;
 	src = ether_ntoa((const struct ether_addr *)&eptr->ether_shost);
 	des = ether_ntoa((const struct ether_addr *)&eptr->ether_dhost);
+
+	store(src,des);
  
-     fprintf(stdout,"ethernet header source: %s",src);
-     fprintf(stdout," destination: %s ", des);
+//     fprintf(stdout,"ethernet header source: %s",src);
+//     fprintf(stdout," destination: %s ", des);
   
      /* check to see if we have an ip packet */
      if (ntohs (eptr->ether_type) == ETHERTYPE_IP)
