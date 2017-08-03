@@ -46,7 +46,7 @@ void printList(struct node *node, void (*fptr)(void *))
 
 void printChar(void *c)
 {
-	printf("printing from list\n");
+	printf("printing from list");
 	printf(" %s", *(char*)c);
 }
 

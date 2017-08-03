@@ -1,11 +1,11 @@
-all : main.o defines.o
+all : main.o defines.o 
 	gcc -o all main.o defines.o -lpcap
 
-main.o : src/main.c include/defines.c 
-	sudo gcc -c -Iinclude src/main.c include/defines.c
+main.o : src/main.c src/defines.c 
+	sudo gcc -c -Iinclude src/main.c src/defines.c -Wall
 
-defines.o: include/defines.c 
-	sudo gcc -c include/defines.c
+defines.o: src/defines.c include/defines.h
+	sudo gcc -c -Iinclude src/defines.c include/defines.h -Wall
 
 clean: 
 	rm -rf all main.o defines.o

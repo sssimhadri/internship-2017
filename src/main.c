@@ -20,15 +20,14 @@
 
 int main (int argc, char **argv)
 {
-	int i;
 	char *dev;
 	char errbuf[PCAP_ERRBUF_SIZE];
 	pcap_t* des;
-	const u_char *packet;
-	struct pcap_pkthdr header;
+//	const u_char *packet;
+//	struct pcap_pkthdr header;
 	struct bpf_program fp;
-	bpf_u_int32 maskp;
-	bpf_u_int32 netp;
+	bpf_u_int32 maskp = malloc(sizeof(int));
+	bpf_u_int32 netp = malloc(sizeof(int));
 
 	if(argc != 2) {
 		fprintf(stdout, "Usage: %s \"filter program\"\n", argv[0]);    
@@ -37,29 +36,47 @@ int main (int argc, char **argv)
 
 	dev = "lo";
 
+//	void begin(dev, netp, maskp, errbuf);
 	pcap_lookupnet(dev,&netp,&maskp,errbuf);
 
-	des = pcap_open_live(dev,BUFSIZ,1,1,errbuf);
+    des = pcap_open_live(dev,BUFSIZ,1,1,errbuf);
+    if( des == NULL )
+    {   
+        printf("pcap_open_live: %s \n", errbuf);
+        exit(1);
+    }   
+    else
+    {   
+        printf("opened\n");
+    }   
 
-	if(des == NULL) {
-		printf("pcap_open_live(): %s\n",errbuf);
-		exit(1);
-	}
-
+//	void compile(des, fp, argv, netp);
 	int comp = pcap_compile(des,&fp,argv[1],0,netp);
+    
+    if(comp == -1) 
+    {   
+        fprintf(stderr,"cant pcap_compile\n");
+        exit(1);
+    }   
+    else 
+    {   
+        fprintf(stdout, "compiled\n");
+    } 
 
-	if(comp == -1) {
-		fprintf(stderr, "cant pcap_compile\n");
-		exit(1);
-	}
-
-	int filter = pcap_setfilter(des,&fp);
-
-	if(filter == -1) {
-		fprintf(stderr, "cant filter\n");
-		exit(1);
-	}
+//	void filter(des, fp);		
+	int filt = pcap_setfilter(des,&fp);
+    if(filt == -1) 
+    {   
+        fprintf(stderr,"cant filter\n");
+        exit(1);
+    }   
+    else
+    {   
+        fprintf(stdout, "filtered\n");
+    }
 
 	pcap_loop(des,10,callback,NULL);
+
+	return 0;
 
 }

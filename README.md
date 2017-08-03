@@ -1,11 +1,22 @@
 # internship-2017
 Packet Capture project for Summer Internship - 2017
 
-This would be a test commit
+Problem Statement : create an interface to efficiently capture, store, and search network packets 
 
-#Monday 7/31
-* git cloned internship-2017 directory
+Modules : 
+* created an interface to capture packets
+* able to print out the IP address
+* 
 
-#Tuesday 8/1
-* created interface to capture 'lo' packets with header source and dest
-* created makefile for main.c, defines.c, defines.h
+Design Diagram : 
+
+Feature List : 
+
+Libraries : 
+* pcap.h
+* // add the rest here when done
+
+Liscense( optional ) : 
+ 
+
+
