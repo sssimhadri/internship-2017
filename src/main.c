@@ -26,15 +26,15 @@ int main (int argc, char **argv)
 //	const u_char *packet;
 //	struct pcap_pkthdr header;
 	struct bpf_program fp;
-	bpf_u_int32 maskp = malloc(sizeof(int));
-	bpf_u_int32 netp = malloc(sizeof(int));
+	bpf_u_int32 maskp;
+	bpf_u_int32 netp;
 
 	if(argc != 2) {
 		fprintf(stdout, "Usage: %s \"filter program\"\n", argv[0]);    
 		return 0;
 	}
 
-	dev = "lo";
+	dev = "wlan0";
 
 //	void begin(dev, netp, maskp, errbuf);
 	pcap_lookupnet(dev,&netp,&maskp,errbuf);
