@@ -29,6 +29,93 @@
 						} \
 						} while (0)
 
+unsigned long hash(unsigned char *str)
+{
+    unsigned long hash = 5381;
+    int c;
+
+    while (c = *str++)
+        hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
+
+    return hash;
+}
+
+// A structure to represent a queue
+struct QNode
+{
+    char* key;
+        struct QNode *next;
+};
+
+struct Queue
+{
+        struct QNode *front, *rear;
+};
+
+struct QNode* newNode(char* k)
+{
+        struct QNode *temp = (struct QNode*)malloc(sizeof(struct QNode));
+    temp->key = k;
+    temp->next = NULL;
+    return temp;
+}
+
+// function to create a queue of given capacity. 
+// It initializes size of queue as 0
+struct Queue* createQueue()
+{
+        struct Queue *q = (struct Queue*)malloc(sizeof(struct Queue));
+    q->front = q->rear = NULL;
+    return q;
+}
+
+// function to add k to queue
+void enqueue(struct Queue* q, char* k)
+{
+        // Create a new LL node
+    struct QNode *temp = newNode(k);
+
+    // If queue is empty, then new node is front and rear both
+    if (q->rear == NULL)
+    {
+       q->front = q->rear = temp;
+       return;
+    }
+
+    // Add the new node at the end of queue and change rear
+    q->rear->next = temp;
+    q->rear = temp;
+}
+
+int isEmpty(struct Queue *q)
+{
+        if(q->front == NULL)
+        {
+                return true;
+        }
+        else
+        {
+                return false;
+        }
+}
+
+// Function to remove a key from given queue q
+struct QNode *dequeue(struct Queue *q)
+{
+    // If queue is empty, return NULL.
+    if (q->front == NULL)
+       return NULL;
+
+    // Store previous front and move front one node ahead
+    struct QNode *temp = q->front;
+    q->front = q->front->next;
+
+    // If front becomes NULL, then change rear also as NULL
+    if (q->front == NULL)
+       q->rear = NULL;
+    return temp;
+}
+
 //declaring node structure
 typedef struct node
 {
@@ -67,6 +154,8 @@ void printList(struct node *node)
     while (node != NULL)
     {   
         printf("%s\n",node->data);
+		unsigned long result = hash(node->data);
+		printf("hashed result: %lu\n",result);
         node = node->next;
     }   
 }
@@ -89,6 +178,7 @@ void deleteList(struct node **head)
 u_int16_t handle_ethernet(u_char *args,const struct pcap_pkthdr* pkthdr,const u_char* packet)
 {
     struct ether_header *eptr;  /* net/ethernet.h */
+	node_t **arr;
 	node_t *start = NULL;
 	char *src, *des; 
 
@@ -101,9 +191,9 @@ u_int16_t handle_ethernet(u_char *args,const struct pcap_pkthdr* pkthdr,const u_
 	printList(start);
 
 //	fprintf(stdout,"ethernet header source: %s",src);
-//    fprintf(stdout," destination: %s ", des);
+//  fprintf(stdout," destination: %s ", des);
   
-     /* check to see if we have an ip packet */
+    /* check to see if we have an ip packet */
 //+++review: use a macro instead of printfs, will allow you to specify different output destinations 
 	if (ntohs (eptr->ether_type) == ETHERTYPE_IP)
     {
