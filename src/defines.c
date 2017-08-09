@@ -78,14 +78,14 @@ void callback(u_char *args, const struct pcap_pkthdr* pkthdr, const u_char* pack
 	}
 	printf("\n");
 }
-/*
-//void begin(dev, netp, maskp, errbuf);
-void begin(char *dev, 
 
-pcap_lookupnet(dev,&netp,&maskp,errbuf);
+pcap_t* begin(char *dev, bpf_u_int32 netp, bpf_u_int32 maskp, char errbuf[], struct bpf_program fp, char **argv)
+{
+	pcap_t* temp;
+	pcap_lookupnet(dev,&netp,&maskp,errbuf);
 
-    des = pcap_open_live(dev,BUFSIZ,1,1,errbuf);
-    if( des == NULL )
+    temp = pcap_open_live(dev,BUFSIZ,1,1,errbuf);
+    if( temp == NULL )
     {
         printf("pcap_open_live: %s \n", errbuf);
         exit(1);
@@ -94,5 +94,36 @@ pcap_lookupnet(dev,&netp,&maskp,errbuf);
     {
         printf("opened\n");
     }
-*/
+	
+	int comp = pcap_compile( temp, &fp, argv[1], 0, netp );
+	
+	if(comp == -1)
+	{
+		fprintf(stderr,"cant pcap_compile\n");
+		exit(1);
+	}
+	else
+	{
+		fprintf(stdout,"compiled\n");
+	}
+
+	int filt = pcap_setfilter(temp,&fp);
+    if(filt == -1) 
+    {   
+        fprintf(stderr,"cant filter\n");
+        exit(1);
+    }   
+    else
+    {   
+        fprintf(stdout, "filtered\n");
+    }
+
+	return temp;
+}
+
+
+
+
+
+
 
