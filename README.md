@@ -1,20 +1,23 @@
 # internship-2017
 Packet Capture project for Summer Internship - 2017
 
-<<<<<<< HEAD
 Problem Statement : create an interface to efficiently capture, store, and search network packets 
 
 Modules : 
 * created an interface to capture packets
 * able to print out the IP address
-* 
+* created queue implementation 
+* store packet address in list implementation
 
 Design Diagram : 
+* DESIGNDIAGRAM.md
 
 Feature List : 
 
 Libraries : 
 * pcap.h
+* sys/socket.h
+* netinet.h
 * // add the rest here when done
 
 Liscense( optional ) : 
@@ -32,6 +35,5 @@ Descibe the complete project in this file, in subsections here is a general guid
 NOT TODO: remove the logs, 
 +++review end <-:
 
->>>>>>> 53ca4082c436aca9959251844ea9c02ad8377e1a
 
 
