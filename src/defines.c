@@ -34,36 +34,21 @@
 u_int16_t handle_ethernet(u_char *args,const struct pcap_pkthdr* pkthdr,const u_char* packet)
 {
     struct ether_header *eptr;  /* net/ethernet.h */
-	node_t *start = NULL;
+	node_t *start = NULL; /* create the first node of list.h */
 	char *src, *des; 
 
-     /* lets start with the ether header... */
+    /* get the ethernet header */
 	eptr = (struct ether_header *) packet;
+	/* get the source and destination MAC address */
 	src = ether_ntoa((struct ether_addr*)eptr->ether_shost);
 	des = ether_ntoa((struct ether_addr*)eptr->ether_dhost);
+	/* MAC addresses to the beginning of the list */
 	push(&start,src);
 	push(&start,des);
+	/* print the list */
 	printList(start);
 
-//	fprintf(stdout,"ethernet header source: %s",src);
-//  fprintf(stdout," destination: %s ", des);
-  
-    /* check to see if we have an ip packet */
-//+++review: use a macro instead of printfs, will allow you to specify different output destinations 
-	if (ntohs (eptr->ether_type) == ETHERTYPE_IP)
-    {
-        myprintf(1,"type: ");
-    }else  if (ntohs (eptr->ether_type) == ETHERTYPE_ARP)
-    {
-        myprintf(2,"type: ");
-    }else  if (ntohs (eptr->ether_type) == ETHERTYPE_REVARP)
-	{ 
-        myprintf(3,"type: ");
-    }else {
-        myprintf(4,"type: ");
-        exit(1);
-    }
-		
+	/* delete the list once we are done printing */	
 	deleteList(&start);
  
     return eptr->ether_type;
@@ -72,10 +57,19 @@ u_int16_t handle_ethernet(u_char *args,const struct pcap_pkthdr* pkthdr,const u_
 void callback(u_char *args, const struct pcap_pkthdr* pkthdr, const u_char* packet)
 {
 	u_int16_t type = handle_ethernet(args,pkthdr,packet);
-	if(type == ETHERTYPE_IP)
-	{
-		printf("congrats");
-	}
+
+	/* print out what type of packet we have received */
+	if ( ntohs(type) == ETHERTYPE_IP) {
+        myprintf(1,"type: ");
+    } else  if ( ntohs(type) == ETHERTYPE_ARP) {
+        myprintf(2,"type: ");
+    } else  if ( ntohs(type) == ETHERTYPE_REVARP) { 
+        myprintf(3,"type: ");
+    } else {
+        myprintf(4,"type: ");
+        exit(1);
+    }	
+
 	printf("\n");
 }
 
@@ -85,45 +79,30 @@ pcap_t* begin(char *dev, bpf_u_int32 netp, bpf_u_int32 maskp, char errbuf[], str
 	pcap_lookupnet(dev,&netp,&maskp,errbuf);
 
     temp = pcap_open_live(dev,BUFSIZ,1,1,errbuf);
-    if( temp == NULL )
-    {
+    if( temp == NULL ) {
         printf("pcap_open_live: %s \n", errbuf);
         exit(1);
-    }
-    else
-    {
+	} else {
         printf("opened\n");
     }
 	
 	int comp = pcap_compile( temp, &fp, argv[1], 0, netp );
 	
-	if(comp == -1)
-	{
+	if(comp == -1) {
 		fprintf(stderr,"cant pcap_compile\n");
 		exit(1);
-	}
-	else
-	{
+	} else {
 		fprintf(stdout,"compiled\n");
 	}
 
 	int filt = pcap_setfilter(temp,&fp);
-    if(filt == -1) 
-    {   
+    if(filt == -1) {   
         fprintf(stderr,"cant filter\n");
         exit(1);
-    }   
-    else
-    {   
+    } else {   
         fprintf(stdout, "filtered\n");
     }
 
 	return temp;
 }
-
-
-
-
-
-
 
