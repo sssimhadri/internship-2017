@@ -27,29 +27,34 @@
 						} else { \
 							printf(__VA_ARGS__); \
 							fprintf(stdout,"(?)"); \
-							exit(1); \
 						} \
 						} while (0)
 
 u_int16_t handle_ethernet(u_char *args,const struct pcap_pkthdr* pkthdr,const u_char* packet)
 {
     struct ether_header *eptr;  /* net/ethernet.h */
-	node_t *start = NULL; /* create the first node of list.h */
+//	node_t *start = NULL; /* create the first node of list.h */
 	char *src, *des; 
+	FILE *fptr;
 
     /* get the ethernet header */
 	eptr = (struct ether_header *) packet;
 	/* get the source and destination MAC address */
 	src = ether_ntoa((struct ether_addr*)eptr->ether_shost);
 	des = ether_ntoa((struct ether_addr*)eptr->ether_dhost);
+
+	fptr = fopen("test.pcap","a");
+	fprintf(fptr,"%s\n",src);
+	fprintf(fptr,"%s\n",des);
+	fclose(fptr);
+
 	/* MAC addresses to the beginning of the list */
-	push(&start,src);
-	push(&start,des);
+//	push(&start,des);
 	/* print the list */
-	printList(start);
+//	printList(start);
 
 	/* delete the list once we are done printing */	
-	deleteList(&start);
+//	deleteList(&start);
  
     return eptr->ether_type;
 }
@@ -67,13 +72,12 @@ void callback(u_char *args, const struct pcap_pkthdr* pkthdr, const u_char* pack
         myprintf(3,"type: ");
     } else {
         myprintf(4,"type: ");
-        exit(1);
     }	
 
 	printf("\n");
 }
 
-pcap_t* begin(char *dev, bpf_u_int32 netp, bpf_u_int32 maskp, char errbuf[], struct bpf_program fp, char **argv)
+pcap_t* begin(char *dev, bpf_u_int32 netp, bpf_u_int32 maskp, char errbuf[], struct bpf_program fp)
 {
 	pcap_t* temp;
 	pcap_lookupnet(dev,&netp,&maskp,errbuf);
@@ -86,7 +90,7 @@ pcap_t* begin(char *dev, bpf_u_int32 netp, bpf_u_int32 maskp, char errbuf[], str
         printf("opened\n");
     }
 	
-	int comp = pcap_compile( temp, &fp, argv[1], 0, netp );
+	int comp = pcap_compile( temp, &fp, NULL, 0, netp );
 	
 	if(comp == -1) {
 		fprintf(stderr,"cant pcap_compile\n");

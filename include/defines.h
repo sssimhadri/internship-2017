@@ -9,6 +9,6 @@
 
 u_int16_t handle_ethernet(u_char *args,const struct pcap_pkthdr* pkthdr,const u_char* packet);
 void callback(u_char *args, const struct pcap_pkthdr* pkthdr, const u_char* packet);
-pcap_t* begin( char* dev, bpf_u_int32 netp, bpf_u_int32 maskp, char errbuf[], struct bpf_program fp, char **argv );
+pcap_t* begin( char* dev, bpf_u_int32 netp, bpf_u_int32 maskp, char errbuf[], struct bpf_program fp);
 
 #endif
