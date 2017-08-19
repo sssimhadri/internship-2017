@@ -51,14 +51,14 @@ void printList(struct node *node)
 		//unsigned long result = hash(node->data);
 		switch (i) {
 			case 0 : 
-        		printf("destination MAC: %s\n",node->data);
+        		printf("destination MAC: %s",node->data);
         		//printf("hashed MAC: %lu\n",result);
-        		node = node->next;
+// 	      		node = node->next;
 				i++;
 			case 1 : 
-				printf("source MAC: %s\n",node->data);
+				printf("source MAC: %s",node->data);
             	//printf("hashed MAC: %lu\n",result);
-            	node = node->next;
+            	node = NULL;
             	i--;
 		}
     }

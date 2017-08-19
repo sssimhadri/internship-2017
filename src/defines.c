@@ -1,18 +1,6 @@
-#include <pcap.h>
-#include <errno.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <netinet/if_ether.h>
-#include <netinet/ether.h>
-#include <netinet/ether.h>
-#include <string.h>
-
-#include "defines.h"
-#include "list.h"
-#include "queue.h"
+#include <defines.h>
+#include <list.h>
+#include <queue.h>
 
 #define myprintf(x,...) do { \
 						if( x == 1 ) { \
@@ -44,8 +32,8 @@ u_int16_t handle_ethernet(u_char *args,const struct pcap_pkthdr* pkthdr,const u_
 	des = ether_ntoa((struct ether_addr*)eptr->ether_dhost);
 
 	fptr = fopen("test.pcap","a");
-	fprintf(fptr,"%s\n",src);
-	fprintf(fptr,"%s\n",des);
+	fprintf(fptr,"source: %s\n",src);
+	fprintf(fptr,"des: %s\n",des);
 	fclose(fptr);
 
 	/* MAC addresses to the beginning of the list */
@@ -77,7 +65,7 @@ void callback(u_char *args, const struct pcap_pkthdr* pkthdr, const u_char* pack
 	printf("\n");
 }
 
-pcap_t* begin(char *dev, bpf_u_int32 netp, bpf_u_int32 maskp, char errbuf[], struct bpf_program fp)
+pcap_t* begin(char *dev, bpf_u_int32 netp, bpf_u_int32 maskp, char errbuf[], struct bpf_program fp, char **argv)
 {
 	pcap_t* temp;
 	pcap_lookupnet(dev,&netp,&maskp,errbuf);
@@ -90,7 +78,7 @@ pcap_t* begin(char *dev, bpf_u_int32 netp, bpf_u_int32 maskp, char errbuf[], str
         printf("opened\n");
     }
 	
-	int comp = pcap_compile( temp, &fp, NULL, 0, netp );
+	int comp = pcap_compile( temp, &fp, argv[1], 0, netp );
 	
 	if(comp == -1) {
 		fprintf(stderr,"cant pcap_compile\n");
@@ -109,4 +97,60 @@ pcap_t* begin(char *dev, bpf_u_int32 netp, bpf_u_int32 maskp, char errbuf[], str
 
 	return temp;
 }
+
+void addQueue()
+{
+	char line[256];
+	int i = 0;
+	node_t *A[100];
+	for( i = 0; i < 100; i++ ) {
+		A[i] = NULL;
+	}
+	struct Queue *q = createQueue();
+	FILE *f = fopen("test.pcap","r");
+	while( fgets(line, sizeof(line), f) != NULL ) {
+		enqueue(q,line);
+		printf("%s",line);
+	}
+
+	fclose(f);
+	
+//	int k = 0;
+	while( isEmpty(q) == 0 ) {
+//		node_t *start = NULL;
+		struct QNode *n = dequeue(q);
+		char* str = n->key;
+		printf("%s",str);
+	//	push(&start, str);
+	//	printf("k is %d\n",k);
+	//	A[k] = start;
+	//	k++;
+	}
+
+	int j;
+	for( j = 0; j < 20; j++ ) {
+	//	printList(A[j]);
+	}
+	
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
