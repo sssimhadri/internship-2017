@@ -24,4 +24,4 @@ Overall:
 * professional coding style
 * markdown files
 * mscgen diagrams
-* github
+* github - satyajit
