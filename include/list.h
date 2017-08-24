@@ -43,24 +43,9 @@ void push(node_t **head_ref, char *new_data)
 /* printing data in list */
 void printList(struct node *node)
 {
-    if( node == NULL ) {
-        printf("cant print cause empty\n");
-    }
     while (node != NULL) {
-		int i = 0;
-		//unsigned long result = hash(node->data);
-		switch (i) {
-			case 0 : 
-        		printf("destination MAC: %s",node->data);
-        		//printf("hashed MAC: %lu\n",result);
-// 	      		node = node->next;
-				i++;
-			case 1 : 
-				printf("source MAC: %s",node->data);
-            	//printf("hashed MAC: %lu\n",result);
-            	node = NULL;
-            	i--;
-		}
+        printf("%s\n",node->data);
+        node = node->next;
     }
 }
 

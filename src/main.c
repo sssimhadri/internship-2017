@@ -1,6 +1,6 @@
 /*
  * Author : Satyajit Simhadri
- * purpose : capture and store network packets
+ * purpose : capture, store, and search network packets
  * copyright notice :
  *
  *
@@ -14,8 +14,6 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <netinet/if_ether.h>
-#include <netinet/ether.h>
-#include <netinet/ether.h>
 #include <string.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -24,56 +22,55 @@
 #define NUM_CHARS 256
 #define PCAP_SAVEFILE "./pcap_savefile"
 
-int help(char* arg)
-{
-	char *h = "-h";
-	char *h1 = "--help";
-	if( (strcmp(arg,h) == 0) || (strcmp(arg,h1) == 0) ) {
-		return 1;
-	}
-	else {
-		return 0;
-	}
-}
-
-void displayHelp() 
-{
-	printf("specify filter program for wlan0\n");
-	printf("ex. src 127.0.0.1\n");
-}
-
 int main(int argc, char **argv)
 {
-	char *dev;
+	char *dev = "en0";
+	int packets = 0;
+	int num;
 	char errbuf[PCAP_ERRBUF_SIZE];
 	pcap_t* des;
 	struct bpf_program fp;
 	bpf_u_int32 maskp = 0;
 	bpf_u_int32 netp = 0;
-	dev = "wlan0";
-//	dev = malloc(sizeof(char)*(NUM_CHARS + 1));
 
-//	printf("Enter type of device: \n");
-//	printf("eth0\nlo\nwlan0\n");
-//	scanf("%s",dev);
+	printf("Enter amount of packets to receive:  \n");
+	scanf("%d",&packets);
 
-	if(argc != 2) {
-		fprintf(stdout, "Usage: %s \"filter program\"\n", argv[0]);    
-		return 0;
-	}
+	pcap_lookupnet(dev,&netp,&maskp,errbuf);
 
-	if(argc == 2 && help(argv[1])) {
-		displayHelp();
+    des = pcap_open_live(dev,BUFSIZ,1,1,errbuf);
+    if( des == NULL ) {
+        printf("pcap_open_live: %s \n", errbuf);
+        exit(1);
+	} else {
+        printf("opened\n");
+    }
+	
+	int comp = pcap_compile( des, &fp, NULL, 0, netp );
+	
+	if(comp == -1) {
+		fprintf(stderr,"cant pcap_compile\n");
 		exit(1);
+	} else {
+		fprintf(stdout,"compiled\n");
 	}
 
+	int filt = pcap_setfilter(des,&fp);
+    if(filt == -1) {   
+        fprintf(stderr,"cant filter\n");
+        exit(1);
+    } else {   
+        fprintf(stdout, "filtered\n");
+    }
+
+	/* clears content of test.pcap before storing addresses in it */
 	FILE *f = fopen("test.pcap","w");
 	fclose(f);
 
-	des = begin(dev, netp, maskp, errbuf, fp, argv);
-	pcap_loop(des,10,callback,NULL);
+	pcap_loop(des,packets,callback,NULL);
 
-	addQueue();
+	num = 2*packets;
+	storing(num);
 
 	return 0;
 }

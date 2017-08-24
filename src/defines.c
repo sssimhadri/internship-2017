@@ -21,7 +21,6 @@
 u_int16_t handle_ethernet(u_char *args,const struct pcap_pkthdr* pkthdr,const u_char* packet)
 {
     struct ether_header *eptr;  /* net/ethernet.h */
-//	node_t *start = NULL; /* create the first node of list.h */
 	char *src, *des; 
 	FILE *fptr;
 
@@ -31,18 +30,15 @@ u_int16_t handle_ethernet(u_char *args,const struct pcap_pkthdr* pkthdr,const u_
 	src = ether_ntoa((struct ether_addr*)eptr->ether_shost);
 	des = ether_ntoa((struct ether_addr*)eptr->ether_dhost);
 
+	/* adds source and destination MAC addresses to .pcap file
+	 * prints source and destination MAC addresses
+	 */
 	fptr = fopen("test.pcap","a");
-	fprintf(fptr,"source: %s\n",src);
-	fprintf(fptr,"des: %s\n",des);
+	fprintf(fptr,"%s\n",src);
+	printf("source MAC: %s\n",src);
+	fprintf(fptr,"%s\n",des);
+	printf("destination MAC: %s\n",des);
 	fclose(fptr);
-
-	/* MAC addresses to the beginning of the list */
-//	push(&start,des);
-	/* print the list */
-//	printList(start);
-
-	/* delete the list once we are done printing */	
-//	deleteList(&start);
  
     return eptr->ether_type;
 }
@@ -65,73 +61,48 @@ void callback(u_char *args, const struct pcap_pkthdr* pkthdr, const u_char* pack
 	printf("\n");
 }
 
-pcap_t* begin(char *dev, bpf_u_int32 netp, bpf_u_int32 maskp, char errbuf[], struct bpf_program fp, char **argv)
+void storing(int num)
 {
-	pcap_t* temp;
-	pcap_lookupnet(dev,&netp,&maskp,errbuf);
-
-    temp = pcap_open_live(dev,BUFSIZ,1,1,errbuf);
-    if( temp == NULL ) {
-        printf("pcap_open_live: %s \n", errbuf);
-        exit(1);
-	} else {
-        printf("opened\n");
-    }
-	
-	int comp = pcap_compile( temp, &fp, argv[1], 0, netp );
-	
-	if(comp == -1) {
-		fprintf(stderr,"cant pcap_compile\n");
-		exit(1);
-	} else {
-		fprintf(stdout,"compiled\n");
-	}
-
-	int filt = pcap_setfilter(temp,&fp);
-    if(filt == -1) {   
-        fprintf(stderr,"cant filter\n");
-        exit(1);
-    } else {   
-        fprintf(stdout, "filtered\n");
-    }
-
-	return temp;
-}
-
-void addQueue()
-{
-	char line[256];
-	int i = 0;
-	node_t *A[100];
-	for( i = 0; i < 100; i++ ) {
-		A[i] = NULL;
-	}
-	struct Queue *q = createQueue();
+	node_t *A[num];
+	char *line[num];
+	int i, k, x, y;
+	unsigned long result;
+	unsigned long in;
+	int index;
 	FILE *f = fopen("test.pcap","r");
-	while( fgets(line, sizeof(line), f) != NULL ) {
-		enqueue(q,line);
-		printf("%s",line);
+	
+	/* add test.pcap to string array */
+	for( i = 0; i < num; i++ ) {
+		line[i] = malloc(sizeof(char)*256);
+		fscanf(f,"%s",line[i]);
 	}
 
 	fclose(f);
 	
-//	int k = 0;
-	while( isEmpty(q) == 0 ) {
-//		node_t *start = NULL;
-		struct QNode *n = dequeue(q);
-		char* str = n->key;
-		printf("%s",str);
-	//	push(&start, str);
-	//	printf("k is %d\n",k);
-	//	A[k] = start;
-	//	k++;
+	/* initialize space for array of linked list */
+	for( k = 0; k < num; k++ ) {
+		A[k] = NULL;
 	}
 
-	int j;
-	for( j = 0; j < 20; j++ ) {
-	//	printList(A[j]);
+	/* hash MAC addresses and store them in array of linked list */
+	for( x = 0; x < num; x++ ) {
+		result = hash(line[x]);
+		in = result%num;
+		index = (int)in;
+		if( A[index] == NULL ) {
+			node_t *start = NULL;
+			push(&start,line[x]);
+			A[index] = start;
+		}
+		else {
+			push(&A[index],line[x]);
+		}
 	}
-	
+
+	printf("printing from array of linked list...\n");
+	for( y = 0; y < num; y++ ) {
+		printList(A[y]);
+	}
 }
 
 
